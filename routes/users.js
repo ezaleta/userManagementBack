@@ -32,11 +32,11 @@ router.post("/action", authenticateToken, async (req, res) => {
         }
 
         if (action === "block") {
-            await pool.query("UPDATE public.users SET status = $1 WHERE id IN ($2)", ["blocked", userIds]);
+            await pool.query("UPDATE public.users SET status = $1 WHERE id = ANY($2::int[])", ["blocked", userIds]);
         } else if (action === "unblock") {
-            await pool.query("UPDATE public.users SET status = $1 WHERE id IN ($2)", ["active", userIds]);
+            await pool.query("UPDATE public.users SET status = $1 WHERE id = ANY($2::int[])", ["active", userIds]);
         } else if (action === "delete") {
-            await pool.query("DELETE public.users users WHERE id IN ($1)", [userIds]);
+            await pool.query("DELETE FROM public.users WHERE id = ANY($1::int[])", [userIds]);
         } else {
             return res.status(400).json({ message: "Invalid action" });
         }
